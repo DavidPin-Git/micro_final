@@ -36,16 +36,3 @@ def preprocess(filePath):
             result["stft_times"] = stft_times.tolist()
     with open(r'data/processed/vibration_pattern.json', 'w') as fp:
         json.dump(result, fp)
-
-'''if __name__ == "__main__":
-    
-    #Trocar para qualqer arquivo .mp3
-    filePath = librosa.example('nutcracker')
-    vibrators_map = {
-    "low": {"min": 20, "max": 200},         
-    "mid": {"min": 200, "max": 2000},      
-    "high": {"min": 2000, "max": 8000},     
-}
-    result = preprocess(filePath, vibrators_map)
-    with open(r'data/processed/nutcracker_vibration_pattern.json', 'w') as fp:
-        json.dump(result, fp)'''
