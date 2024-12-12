@@ -1,9 +1,9 @@
 import json
 import numpy as np
 import sounddevice as sd
-from serial import Serial
+#from serial import Serial
 import time as code_time
-from datetime import datetime
+from datetime import datetime, timedelta
 import threading
 import pygame
 import sys
@@ -32,11 +32,13 @@ attraction = False  # Initialize attraction state globally
 screen = None
 clock = None
 meu_serial = None
+srtTime = None
+delta = None
 
 # Pygame setup
 def setup():
     global meu_serial
-    meu_serial = Serial(port='COM6', baudrate=9600)
+    #meu_serial = Serial(port='COM6', baudrate=9600)
     pygame.init()
     global screen
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -126,36 +128,29 @@ def balls_simulation():
         pygame.display.flip()
 
 def callback(data, frames, time, status):
-    global low_energy, mid_energy, high_energy, stft_times, startTime, attraction, ATTRACTION_FORCE, meu_serial
 
-    if not startTime:
-        startTime = datetime.now()
+    global low_energy, mid_energy, high_energy, stft_times, startTime, attraction, ATTRACTION_FORCE, meu_serial, srtTime, delta
 
-    current_time = (datetime.now()-startTime).total_seconds()
+    current_time = (datetime.now() - delta).total_seconds()
+    #print(current_time)
     idx = np.argmin(np.abs(stft_times - current_time))
+
 
     low_intensity = low_energy[idx]
     mid_intensity = mid_energy[idx]
     high_intensity = high_energy[idx]
 
-    # Debug: Print intensities and threshold comparison
-    # print(f"Low: {low_intensity}, Mid: {mid_intensity}, High: {high_intensity}")
-
-    # Strong beat detection
-    beat_threshold = 4  # This threshold can be adjusted based on what you consider a "strong beat"
-    # if low_intensity > beat_threshold or mid_intensity > beat_threshold or high_intensity > beat_threshold:
-    #     attraction = True  # Turn on attraction when a strong beat is detected
-    #     print("Attraction ON")
-    # else:
-    #     attraction = False  # Turn off attraction otherwise
-    #     print("Attraction OFF")
+    beat_threshold = 3.5 
 
     if low_intensity > beat_threshold:
         attraction = True
         ATTRACTION_FORCE = low_intensity * 0.04
     if high_intensity > beat_threshold:
         attraction = True
-        ATTRACTION_FORCE = low_intensity * -1
+        ATTRACTION_FORCE = low_intensity * -0.05
+    if high_intensity < beat_threshold and low_intensity < beat_threshold:
+        attraction = True
+        ATTRACTION_FORCE = 3
 
     visualization = (
         f"L: {'#' * 1 * int(low_intensity)}".ljust(50) +  
@@ -171,15 +166,18 @@ def callback(data, frames, time, status):
 
     global last_serial_write_time
     if code_time.time() - last_serial_write_time >= 0.2:
-        print(serial_string)
-        meu_serial.write(serial_string.encode("UTF-8"))
+        current_time += 0.2
+        #print(serial_string)
+        #meu_serial.write(serial_string.encode("UTF-8"))
         last_serial_write_time = code_time.time()  
 
     #print(visualization)
 
-def player():
+def player(tempoAtual):
     setup()
-    global low_energy, mid_energy, high_energy, stft_times
+    global low_energy, mid_energy, high_energy, stft_times, srtTime
+    srtTime = tempoAtual
+    #print(srtTime)
 
     with open('data/processed/vibration_pattern.json', 'r') as fp:
         vibration_data = json.load(fp)
@@ -190,7 +188,8 @@ def player():
     stft_times = np.array(vibration_data['stft_times'])
     y = np.array(vibration_data['y'])
     sr = np.array(vibration_data['sr'])
-
+    tempoAtual = tempoAtual*sr
+    y = y[int(tempoAtual):]
     # Start audio processing in a background thread
     audio_thread = threading.Thread(target=player_audio, args=(y, sr), daemon=True)
     audio_thread.start()
@@ -199,6 +198,8 @@ def player():
     balls_simulation()
 
 def player_audio(y, sr):
+    global delta
+    delta = datetime.now() - timedelta(seconds=srtTime)
     with sd.OutputStream(callback=callback, channels=1, samplerate=sr):
         sd.play(y, samplerate=sr)
         sd.wait()
