@@ -6,9 +6,9 @@ O projeto consiste na percepção tatil e visual da musica, atraves de vibraçã
 
 1. Clone o repositório.
 2. Baixe a ferramenta ffmpeg
-  2.1. Extraia e adiciona a basta ffmpeg/bin ao PATH
-3. Certifique-se de estar utilizando a versão 3.10 do Python
-4. Instale as dependencias:
+3. Extraia e adiciona a basta ffmpeg/bin ao PATH
+4. Certifique-se de estar utilizando a versão 3.10 do Python
+5. Instale as dependencias:
    pip install -r requirements.txt
 
 ## Uso
