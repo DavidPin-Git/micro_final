@@ -5,16 +5,16 @@ O projeto consiste na percepção tatil e visual da musica, atraves de vibraçã
 ## Instalação
 
 1. Clone o repositório.
-2. Baixe a ferramenta ffmpeg
-3. Extraia e adiciona a basta ffmpeg/bin ao PATH
-4. Certifique-se de estar utilizando a versão 3.10 do Python
+2. Baixe a ferramenta ffmpeg.
+3. Extraia e adiciona a basta ffmpeg/bin ao PATH.
+4. Certifique-se de estar utilizando a versão 3.10 do Python.
 5. Instale as dependencias:
    pip install -r requirements.txt
 
 ## Uso
 
 0. Execute Tkinter_GUI.py
-1. Selecione as faixas que deseja tocar (se nenhuma for selecionada, é reproduzida a musica na integra) e o volume
+1. Selecione as faixas que deseja tocar (se nenhuma for selecionada, é reproduzida a musica na integra) e o volume.
 2. Carregue a musica arratando para a area de carregamento ou clique em carregar e abra a musica. Espere alguns segundos.
 3. Depois de carregado, voce pode reproduzir e pausar a musica a qualquer momento. A reprodução não é instantanea, mas não demora.
 
